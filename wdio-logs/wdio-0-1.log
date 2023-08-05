@@ -1,0 +1,121 @@
+2022-11-18T04:24:24.823Z INFO @wdio/local-runner: Run worker command: run
+2022-11-18T04:24:25.310Z INFO webdriver: Initiate new session using the WebDriver protocol
+2022-11-18T04:24:25.315Z INFO webdriver: [POST] http://localhost:4444/wd/hub/session
+2022-11-18T04:24:25.315Z INFO webdriver: DATA {
+  capabilities: {
+    alwaysMatch: { browserName: 'chrome', acceptInsecureCerts: true },
+    firstMatch: [ {} ]
+  },
+  desiredCapabilities: { browserName: 'chrome', acceptInsecureCerts: true }
+}
+2022-11-18T04:24:38.598Z INFO webdriver: COMMAND navigateTo("https://opensource-demo.orangehrmlive.com/")
+2022-11-18T04:24:38.599Z INFO webdriver: [POST] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426/url
+2022-11-18T04:24:38.599Z INFO webdriver: DATA { url: 'https://opensource-demo.orangehrmlive.com/' }
+2022-11-18T04:24:46.097Z INFO webdriver: COMMAND getUrl()
+2022-11-18T04:24:46.098Z INFO webdriver: [GET] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426/url
+2022-11-18T04:24:46.131Z INFO webdriver: RESULT https://opensource-demo.orangehrmlive.com/web/index.php/auth/login
+2022-11-18T04:24:46.144Z INFO webdriver: COMMAND navigateTo("https://opensource-demo.orangehrmlive.com/")
+2022-11-18T04:24:46.145Z INFO webdriver: [POST] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426/url
+2022-11-18T04:24:46.145Z INFO webdriver: DATA { url: 'https://opensource-demo.orangehrmlive.com/' }
+2022-11-18T04:24:46.947Z INFO webdriver: COMMAND getTitle()
+2022-11-18T04:24:46.949Z INFO webdriver: [GET] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426/title
+2022-11-18T04:24:46.976Z INFO webdriver: RESULT OrangeHRM
+2022-11-18T04:24:46.981Z INFO webdriver: COMMAND navigateTo("https://opensource-demo.orangehrmlive.com/")
+2022-11-18T04:24:46.981Z INFO webdriver: [POST] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426/url
+2022-11-18T04:24:46.982Z INFO webdriver: DATA { url: 'https://opensource-demo.orangehrmlive.com/' }
+2022-11-18T04:24:47.824Z INFO webdriver: COMMAND getTitle()
+2022-11-18T04:24:47.825Z INFO webdriver: [GET] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426/title
+2022-11-18T04:24:47.855Z INFO webdriver: RESULT OrangeHRM
+2022-11-18T04:24:47.860Z INFO webdriver: COMMAND findElement("css selector", "input[name='username']")
+2022-11-18T04:24:47.861Z INFO webdriver: [POST] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426/element
+2022-11-18T04:24:47.861Z INFO webdriver: DATA { using: 'css selector', value: "input[name='username']" }
+2022-11-18T04:24:47.909Z INFO webdriver: RESULT {
+  error: 'no such element',
+  message: `no such element: Unable to locate element: {"method":"css selector","selector":"input[name='username']"}\n` +
+    '  (Session info: chrome=107.0.5304.107)',
+  stacktrace: 'Backtrace:\n' +
+    '\tOrdinal0 [0x00B1ACD3+2075859]\n' +
+    '\tOrdinal0 [0x00AAEE61+1633889]\n' +
+    '\tOrdinal0 [0x009AB7BD+571325]\n' +
+    '\tOrdinal0 [0x009DAC2F+764975]\n' +
+    '\tOrdinal0 [0x009DAE1B+765467]\n' +
+    '\tOrdinal0 [0x00A0D0F2+970994]\n' +
+    '\tOrdinal0 [0x009F7364+881508]\n' +
+    '\tOrdinal0 [0x00A0B56A+963946]\n' +
+    '\tOrdinal0 [0x009F7136+880950]\n' +
+    '\tOrdinal0 [0x009CFEFD+720637]\n' +
+    '\tOrdinal0 [0x009D0F3F+724799]\n' +
+    '\tGetHandleVerifier [0x00DCEED2+2769538]\n' +
+    '\tGetHandleVerifier [0x00DC0D95+2711877]\n' +
+    '\tGetHandleVerifier [0x00BAA03A+521194]\n' +
+    '\tGetHandleVerifier [0x00BA8DA0+516432]\n' +
+    '\tOrdinal0 [0x00AB682C+1665068]\n' +
+    '\tOrdinal0 [0x00ABB128+1683752]\n' +
+    '\tOrdinal0 [0x00ABB215+1683989]\n' +
+    '\tOrdinal0 [0x00AC6484+1729668]\n' +
+    '\tBaseThreadInitThunk [0x77136939+25]\n' +
+    '\tRtlGetFullPathName_UEx [0x77D18FD2+1218]\n' +
+    '\tRtlGetFullPathName_UEx [0x77D18F9D+1165]\n'
+}
+2022-11-18T04:24:47.932Z INFO webdriver: COMMAND findElements("css selector", "input[name='username']")
+2022-11-18T04:24:47.932Z INFO webdriver: [POST] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426/elements
+2022-11-18T04:24:47.932Z INFO webdriver: DATA { using: 'css selector', value: "input[name='username']" }
+2022-11-18T04:24:47.963Z INFO webdriver: RESULT []
+2022-11-18T04:24:48.436Z INFO webdriver: COMMAND findElements("css selector", "input[name='username']")
+2022-11-18T04:24:48.436Z INFO webdriver: [POST] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426/elements
+2022-11-18T04:24:48.436Z INFO webdriver: DATA { using: 'css selector', value: "input[name='username']" }
+2022-11-18T04:24:48.468Z INFO webdriver: RESULT []
+2022-11-18T04:24:48.936Z INFO webdriver: COMMAND findElements("css selector", "input[name='username']")
+2022-11-18T04:24:48.936Z INFO webdriver: [POST] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426/elements
+2022-11-18T04:24:48.936Z INFO webdriver: DATA { using: 'css selector', value: "input[name='username']" }
+2022-11-18T04:24:48.964Z INFO webdriver: RESULT [
+  {
+    'element-6066-11e4-a52e-4f735466cecf': '920ebbe5-7777-4118-92ca-13690f947842'
+  }
+]
+2022-11-18T04:24:48.967Z INFO webdriver: COMMAND findElement("css selector", "input[name='username']")
+2022-11-18T04:24:48.967Z INFO webdriver: [POST] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426/element
+2022-11-18T04:24:48.967Z INFO webdriver: DATA { using: 'css selector', value: "input[name='username']" }
+2022-11-18T04:24:48.992Z INFO webdriver: RESULT {
+  'element-6066-11e4-a52e-4f735466cecf': '920ebbe5-7777-4118-92ca-13690f947842'
+}
+2022-11-18T04:24:49.002Z INFO webdriver: COMMAND elementClear("920ebbe5-7777-4118-92ca-13690f947842")
+2022-11-18T04:24:49.002Z INFO webdriver: [POST] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426/element/920ebbe5-7777-4118-92ca-13690f947842/clear
+2022-11-18T04:24:49.075Z INFO webdriver: COMMAND elementSendKeys("920ebbe5-7777-4118-92ca-13690f947842", "admin")
+2022-11-18T04:24:49.076Z INFO webdriver: [POST] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426/element/920ebbe5-7777-4118-92ca-13690f947842/value
+2022-11-18T04:24:49.076Z INFO webdriver: DATA { text: 'admin' }
+2022-11-18T04:24:49.152Z INFO webdriver: COMMAND findElement("css selector", "input[name='password']")
+2022-11-18T04:24:49.152Z INFO webdriver: [POST] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426/element
+2022-11-18T04:24:49.152Z INFO webdriver: DATA { using: 'css selector', value: "input[name='password']" }
+2022-11-18T04:24:49.178Z INFO webdriver: RESULT {
+  'element-6066-11e4-a52e-4f735466cecf': '01bf1e16-0576-4bd0-91f8-5cf52a112719'
+}
+2022-11-18T04:24:49.187Z INFO webdriver: COMMAND elementClear("01bf1e16-0576-4bd0-91f8-5cf52a112719")
+2022-11-18T04:24:49.187Z INFO webdriver: [POST] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426/element/01bf1e16-0576-4bd0-91f8-5cf52a112719/clear
+2022-11-18T04:24:49.263Z INFO webdriver: COMMAND elementSendKeys("01bf1e16-0576-4bd0-91f8-5cf52a112719", "<Screenshot[base64]>")
+2022-11-18T04:24:49.264Z INFO webdriver: [POST] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426/element/01bf1e16-0576-4bd0-91f8-5cf52a112719/value
+2022-11-18T04:24:49.264Z INFO webdriver: DATA { text: 'admin123' }
+2022-11-18T04:24:49.386Z INFO webdriver: COMMAND findElement("css selector", "button[type="submit"]")
+2022-11-18T04:24:49.386Z INFO webdriver: [POST] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426/element
+2022-11-18T04:24:49.386Z INFO webdriver: DATA { using: 'css selector', value: 'button[type="submit"]' }
+2022-11-18T04:24:49.411Z INFO webdriver: RESULT {
+  'element-6066-11e4-a52e-4f735466cecf': '204ac09b-9917-4b8a-a3b9-e60a671d1718'
+}
+2022-11-18T04:24:49.416Z INFO webdriver: COMMAND elementClick("204ac09b-9917-4b8a-a3b9-e60a671d1718")
+2022-11-18T04:24:49.416Z INFO webdriver: [POST] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426/element/204ac09b-9917-4b8a-a3b9-e60a671d1718/click
+2022-11-18T04:24:49.482Z INFO webdriver: COMMAND getTitle()
+2022-11-18T04:24:49.483Z INFO webdriver: [GET] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426/title
+2022-11-18T04:24:51.577Z INFO webdriver: RESULT OrangeHRM
+2022-11-18T04:24:51.581Z INFO webdriver: COMMAND getLogTypes()
+2022-11-18T04:24:51.581Z INFO webdriver: [GET] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426/se/log/types
+2022-11-18T04:24:51.598Z INFO webdriver: RESULT [ 'browser', 'driver' ]
+2022-11-18T04:24:51.599Z INFO webdriver: COMMAND getLogs("driver")
+2022-11-18T04:24:51.600Z INFO webdriver: [POST] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426/se/log
+2022-11-18T04:24:51.600Z INFO webdriver: DATA { type: 'driver' }
+2022-11-18T04:24:51.601Z INFO webdriver: COMMAND getLogs("browser")
+2022-11-18T04:24:51.602Z INFO webdriver: [POST] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426/se/log
+2022-11-18T04:24:51.602Z INFO webdriver: DATA { type: 'browser' }
+2022-11-18T04:24:51.629Z INFO webdriver: RESULT []
+2022-11-18T04:24:51.757Z INFO webdriver: RESULT []
+2022-11-18T04:24:51.757Z INFO webdriver: COMMAND deleteSession()
+2022-11-18T04:24:51.758Z INFO webdriver: [DELETE] http://localhost:4444/wd/hub/session/07c5c2c5b357027968ed3b1a6ffcb426

@@ -1,0 +1,8 @@
+2022-11-22T09:03:44.645Z INFO @wdio/local-runner: Run worker command: run
+2022-11-22T09:03:45.164Z ERROR @wdio/local-runner: Failed launching test session: Error: Couldn't find plugin "allure" reporter, neither as wdio scoped package "@wdio/allure-reporter" nor as community package "wdio-allure-reporter". Please make sure you have it installed!
+    at initialisePlugin (C:\Naufal\WebdriverIO\node_modules\@wdio\utils\build\initialisePlugin.js:41:11)
+    at BaseReporter.initReporter (C:\Naufal\WebdriverIO\node_modules\@wdio\runner\build\reporter.js:154:58)
+    at Array.map (<anonymous>)
+    at new BaseReporter (C:\Naufal\WebdriverIO\node_modules\@wdio\runner\build\reporter.js:22:50)
+    at Runner.run (C:\Naufal\WebdriverIO\node_modules\@wdio\runner\build\index.js:78:26)
+    at processTicksAndRejections (node:internal/process/task_queues:95:5)
