@@ -1,14 +1,20 @@
 'use strict'
 
-const { InvalidArgumentError } = require('./core/errors')
-const { kClients, kRunning, kClose, kDestroy, kDispatch, kInterceptors } = require('./core/symbols')
-const DispatcherBase = require('./dispatcher-base')
+const {
+  ClientClosedError,
+  InvalidArgumentError,
+  ClientDestroyedError
+} = require('./core/errors')
+const { kClients, kRunning } = require('./core/symbols')
+const Dispatcher = require('./dispatcher')
 const Pool = require('./pool')
 const Client = require('./client')
 const util = require('./core/util')
-const createRedirectInterceptor = require('./interceptor/redirectInterceptor')
+const RedirectHandler = require('./handler/redirect')
 const { WeakRef, FinalizationRegistry } = require('./compat/dispatcher-weakref')()
 
+const kDestroyed = Symbol('destroyed')
+const kClosed = Symbol('closed')
 const kOnConnect = Symbol('onConnect')
 const kOnDisconnect = Symbol('onDisconnect')
 const kOnConnectionError = Symbol('onConnectionError')
@@ -24,7 +30,7 @@ function defaultFactory (origin, opts) {
     : new Pool(origin, opts)
 }
 
-class Agent extends DispatcherBase {
+class Agent extends Dispatcher {
   constructor ({ factory = defaultFactory, maxRedirections = 0, connect, ...options } = {}) {
     super()
 
@@ -44,14 +50,7 @@ class Agent extends DispatcherBase {
       connect = { ...connect }
     }
 
-    this[kInterceptors] = options.interceptors && options.interceptors.Agent && Array.isArray(options.interceptors.Agent)
-      ? options.interceptors.Agent
-      : [createRedirectInterceptor({ maxRedirections })]
-
     this[kOptions] = { ...util.deepClone(options), connect }
-    this[kOptions].interceptors = options.interceptors
-      ? { ...options.interceptors }
-      : undefined
     this[kMaxRedirections] = maxRedirections
     this[kFactory] = factory
     this[kClients] = new Map()
@@ -61,6 +60,8 @@ class Agent extends DispatcherBase {
         this[kClients].delete(key)
       }
     })
+    this[kClosed] = false
+    this[kDestroyed] = false
 
     const agent = this
 
@@ -93,32 +94,76 @@ class Agent extends DispatcherBase {
     return ret
   }
 
-  [kDispatch] (opts, handler) {
-    let key
-    if (opts.origin && (typeof opts.origin === 'string' || opts.origin instanceof URL)) {
-      key = String(opts.origin)
-    } else {
-      throw new InvalidArgumentError('opts.origin must be a non-empty string or URL.')
+  dispatch (opts, handler) {
+    if (!handler || typeof handler !== 'object') {
+      throw new InvalidArgumentError('handler must be an object.')
     }
 
-    const ref = this[kClients].get(key)
+    try {
+      if (!opts || typeof opts !== 'object') {
+        throw new InvalidArgumentError('opts must be an object.')
+      }
 
-    let dispatcher = ref ? ref.deref() : null
-    if (!dispatcher) {
-      dispatcher = this[kFactory](opts.origin, this[kOptions])
-        .on('drain', this[kOnDrain])
-        .on('connect', this[kOnConnect])
-        .on('disconnect', this[kOnDisconnect])
-        .on('connectionError', this[kOnConnectionError])
+      let key
+      if (opts.origin && (typeof opts.origin === 'string' || opts.origin instanceof URL)) {
+        key = String(opts.origin)
+      } else {
+        throw new InvalidArgumentError('opts.origin must be a non-empty string or URL.')
+      }
 
-      this[kClients].set(key, new WeakRef(dispatcher))
-      this[kFinalizer].register(dispatcher, key)
+      if (this[kDestroyed]) {
+        throw new ClientDestroyedError()
+      }
+
+      if (this[kClosed]) {
+        throw new ClientClosedError()
+      }
+
+      const ref = this[kClients].get(key)
+
+      let dispatcher = ref ? ref.deref() : null
+      if (!dispatcher) {
+        dispatcher = this[kFactory](opts.origin, this[kOptions])
+          .on('drain', this[kOnDrain])
+          .on('connect', this[kOnConnect])
+          .on('disconnect', this[kOnDisconnect])
+          .on('connectionError', this[kOnConnectionError])
+
+        this[kClients].set(key, new WeakRef(dispatcher))
+        this[kFinalizer].register(dispatcher, key)
+      }
+
+      const { maxRedirections = this[kMaxRedirections] } = opts
+      if (maxRedirections != null && maxRedirections !== 0) {
+        opts = { ...opts, maxRedirections: 0 } // Stop sub dispatcher from also redirecting.
+        handler = new RedirectHandler(this, maxRedirections, opts, handler)
+      }
+
+      return dispatcher.dispatch(opts, handler)
+    } catch (err) {
+      if (typeof handler.onError !== 'function') {
+        throw new InvalidArgumentError('invalid onError method')
+      }
+
+      handler.onError(err)
     }
-
-    return dispatcher.dispatch(opts, handler)
   }
 
-  async [kClose] () {
+  get closed () {
+    return this[kClosed]
+  }
+
+  get destroyed () {
+    return this[kDestroyed]
+  }
+
+  close (callback) {
+    if (callback != null && typeof callback !== 'function') {
+      throw new InvalidArgumentError('callback must be a function')
+    }
+
+    this[kClosed] = true
+
     const closePromises = []
     for (const ref of this[kClients].values()) {
       const client = ref.deref()
@@ -128,10 +173,27 @@ class Agent extends DispatcherBase {
       }
     }
 
-    await Promise.all(closePromises)
+    if (!callback) {
+      return Promise.all(closePromises)
+    }
+
+    // Should never error.
+    Promise.all(closePromises).then(() => process.nextTick(callback))
   }
 
-  async [kDestroy] (err) {
+  destroy (err, callback) {
+    if (typeof err === 'function') {
+      callback = err
+      err = null
+    }
+
+    if (callback != null && typeof callback !== 'function') {
+      throw new InvalidArgumentError('callback must be a function')
+    }
+
+    this[kClosed] = true
+    this[kDestroyed] = true
+
     const destroyPromises = []
     for (const ref of this[kClients].values()) {
       const client = ref.deref()
@@ -141,7 +203,12 @@ class Agent extends DispatcherBase {
       }
     }
 
-    await Promise.all(destroyPromises)
+    if (!callback) {
+      return Promise.all(destroyPromises)
+    }
+
+    // Should never error.
+    Promise.all(destroyPromises).then(() => process.nextTick(callback))
   }
 }
 

@@ -1,13 +1,20 @@
 'use strict'
 
-const DispatcherBase = require('./dispatcher-base')
+const Dispatcher = require('./dispatcher')
+const {
+  ClientDestroyedError,
+  ClientClosedError,
+  InvalidArgumentError
+} = require('./core/errors')
 const FixedQueue = require('./node/fixed-queue')
-const { kConnected, kSize, kRunning, kPending, kQueued, kBusy, kFree, kUrl, kClose, kDestroy, kDispatch } = require('./core/symbols')
+const { kConnected, kSize, kRunning, kPending, kQueued, kBusy, kFree, kUrl } = require('./core/symbols')
 const PoolStats = require('./pool-stats')
 
 const kClients = Symbol('clients')
 const kNeedDrain = Symbol('needDrain')
 const kQueue = Symbol('queue')
+const kDestroyed = Symbol('destroyed')
+const kClosedPromise = Symbol('closed promise')
 const kClosedResolve = Symbol('closed resolve')
 const kOnDrain = Symbol('onDrain')
 const kOnConnect = Symbol('onConnect')
@@ -18,12 +25,16 @@ const kAddClient = Symbol('add client')
 const kRemoveClient = Symbol('remove client')
 const kStats = Symbol('stats')
 
-class PoolBase extends DispatcherBase {
+class PoolBase extends Dispatcher {
   constructor () {
     super()
 
     this[kQueue] = new FixedQueue()
+    this[kClosedPromise] = null
+    this[kClosedResolve] = null
+    this[kDestroyed] = false
     this[kClients] = []
+    this[kNeedDrain] = false
     this[kQueued] = 0
 
     const pool = this
@@ -111,17 +122,59 @@ class PoolBase extends DispatcherBase {
     return this[kStats]
   }
 
-  async [kClose] () {
-    if (this[kQueue].isEmpty()) {
-      return Promise.all(this[kClients].map(c => c.close()))
-    } else {
-      return new Promise((resolve) => {
-        this[kClosedResolve] = resolve
-      })
+  get destroyed () {
+    return this[kDestroyed]
+  }
+
+  get closed () {
+    return this[kClosedPromise] != null
+  }
+
+  close (cb) {
+    try {
+      if (this[kDestroyed]) {
+        throw new ClientDestroyedError()
+      }
+
+      if (!this[kClosedPromise]) {
+        if (this[kQueue].isEmpty()) {
+          this[kClosedPromise] = Promise.all(this[kClients].map(c => c.close()))
+        } else {
+          this[kClosedPromise] = new Promise((resolve) => {
+            this[kClosedResolve] = resolve
+          })
+        }
+        this[kClosedPromise] = this[kClosedPromise].then(() => {
+          this[kDestroyed] = true
+        })
+      }
+
+      if (cb) {
+        this[kClosedPromise].then(() => cb(null, null))
+      } else {
+        return this[kClosedPromise]
+      }
+    } catch (err) {
+      if (cb) {
+        cb(err)
+      } else {
+        return Promise.reject(err)
+      }
     }
   }
 
-  async [kDestroy] (err) {
+  destroy (err, cb) {
+    this[kDestroyed] = true
+
+    if (typeof err === 'function') {
+      cb = err
+      err = null
+    }
+
+    if (!err) {
+      err = new ClientDestroyedError()
+    }
+
     while (true) {
       const item = this[kQueue].shift()
       if (!item) {
@@ -130,19 +183,44 @@ class PoolBase extends DispatcherBase {
       item.handler.onError(err)
     }
 
-    return Promise.all(this[kClients].map(c => c.destroy(err)))
+    const promise = Promise.all(this[kClients].map(c => c.destroy(err)))
+    if (cb) {
+      promise.then(() => cb(null, null))
+    } else {
+      return promise
+    }
   }
 
-  [kDispatch] (opts, handler) {
-    const dispatcher = this[kGetDispatcher]()
+  dispatch (opts, handler) {
+    if (!handler || typeof handler !== 'object') {
+      throw new InvalidArgumentError('handler must be an object')
+    }
 
-    if (!dispatcher) {
-      this[kNeedDrain] = true
-      this[kQueue].push({ opts, handler })
-      this[kQueued]++
-    } else if (!dispatcher.dispatch(opts, handler)) {
-      dispatcher[kNeedDrain] = true
-      this[kNeedDrain] = !this[kGetDispatcher]()
+    try {
+      if (this[kDestroyed]) {
+        throw new ClientDestroyedError()
+      }
+
+      if (this[kClosedPromise]) {
+        throw new ClientClosedError()
+      }
+
+      const dispatcher = this[kGetDispatcher]()
+
+      if (!dispatcher) {
+        this[kNeedDrain] = true
+        this[kQueue].push({ opts, handler })
+        this[kQueued]++
+      } else if (!dispatcher.dispatch(opts, handler)) {
+        dispatcher[kNeedDrain] = true
+        this[kNeedDrain] = !this[kGetDispatcher]()
+      }
+    } catch (err) {
+      if (typeof handler.onError !== 'function') {
+        throw new InvalidArgumentError('invalid onError method')
+      }
+
+      handler.onError(err)
     }
 
     return !this[kNeedDrain]

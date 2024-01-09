@@ -10,10 +10,9 @@ const {
   kMockDispatch
 } = require('./mock-symbols')
 const { InvalidArgumentError } = require('../core/errors')
-const { buildURL } = require('../core/util')
 
 /**
- * Defines the scope API for an interceptor reply
+ * Defines the scope API for a interceptor reply
  */
 class MockScope {
   constructor (mockDispatch) {
@@ -65,22 +64,15 @@ class MockInterceptor {
       throw new InvalidArgumentError('opts.path must be defined')
     }
     if (typeof opts.method === 'undefined') {
-      opts.method = 'GET'
+      throw new InvalidArgumentError('opts.method must be defined')
     }
     // See https://github.com/nodejs/undici/issues/1245
     // As per RFC 3986, clients are not supposed to send URI
     // fragments to servers when they retrieve a document,
     if (typeof opts.path === 'string') {
-      if (opts.query) {
-        opts.path = buildURL(opts.path, opts.query)
-      } else {
-        // Matches https://github.com/nodejs/undici/blob/main/lib/fetch/index.js#L1811
-        const parsedURL = new URL(opts.path, 'data://')
-        opts.path = parsedURL.pathname + parsedURL.search
-      }
-    }
-    if (typeof opts.method === 'string') {
-      opts.method = opts.method.toUpperCase()
+      // Matches https://github.com/nodejs/undici/blob/main/lib/fetch/index.js#L1811
+      const parsedURL = new URL(opts.path, 'data://')
+      opts.path = parsedURL.pathname + parsedURL.search
     }
 
     this[kDispatchKey] = buildKey(opts)
@@ -130,7 +122,7 @@ class MockInterceptor {
           throw new InvalidArgumentError('reply options callback must return an object')
         }
 
-        const { statusCode, data = '', responseOptions = {} } = resolvedData
+        const { statusCode, data, responseOptions = {} } = resolvedData
         this.validateReplyParameters(statusCode, data, responseOptions)
         // Since the values can be obtained immediately we return them
         // from this higher order function that will be resolved later.
@@ -145,10 +137,10 @@ class MockInterceptor {
     }
 
     // We can have either one or three parameters, if we get here,
-    // we should have 1-3 parameters. So we spread the arguments of
+    // we should have 2-3 parameters. So we spread the arguments of
     // this function to obtain the parameters, since replyData will always
     // just be the statusCode.
-    const [statusCode, data = '', responseOptions = {}] = [...arguments]
+    const [statusCode, data, responseOptions = {}] = [...arguments]
     this.validateReplyParameters(statusCode, data, responseOptions)
 
     // Send in-already provided data like usual

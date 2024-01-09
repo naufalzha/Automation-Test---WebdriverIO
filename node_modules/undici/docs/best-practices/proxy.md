@@ -20,10 +20,10 @@ import { createServer } from 'http'
 import proxy from 'proxy'
 
 const server = await buildServer()
-const proxyServer = await buildProxy()
+const proxy = await buildProxy()
 
 const serverUrl = `http://localhost:${server.address().port}`
-const proxyUrl = `http://localhost:${proxyServer.address().port}`
+const proxyUrl = `http://localhost:${proxy.address().port}`
 
 server.on('request', (req, res) => {
   console.log(req.url) // '/hello?foo=bar'
@@ -47,7 +47,7 @@ console.log(response.statusCode) // 200
 console.log(JSON.parse(data)) // { hello: 'world' }
 
 server.close()
-proxyServer.close()
+proxy.close()
 client.close()
 
 function buildServer () {
@@ -73,12 +73,12 @@ import { createServer } from 'http'
 import proxy from 'proxy'
 
 const server = await buildServer()
-const proxyServer = await buildProxy()
+const proxy = await buildProxy()
 
 const serverUrl = `http://localhost:${server.address().port}`
-const proxyUrl = `http://localhost:${proxyServer.address().port}`
+const proxyUrl = `http://localhost:${proxy.address().port}`
 
-proxyServer.authenticate = function (req, fn) {
+proxy.authenticate = function (req, fn) {
   fn(null, req.headers['proxy-authorization'] === `Basic ${Buffer.from('user:pass').toString('base64')}`)
 }
 
@@ -107,7 +107,7 @@ console.log(response.statusCode) // 200
 console.log(JSON.parse(data)) // { hello: 'world' }
 
 server.close()
-proxyServer.close()
+proxy.close()
 client.close()
 
 function buildServer () {
@@ -124,4 +124,3 @@ function buildProxy () {
   })
 }
 ```
-
